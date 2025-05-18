@@ -9,7 +9,7 @@ public class CreateNewRecordRequestBodyAsFile {
 	public static void main(String[] args) {
 		
 		File requstBody = new File("src/main/resources/Request_Payload/create_incident.json");
-		
+					
 		given()
 		.baseUri("https://dev265761.service-now.com")
 		.basePath("/api/now/table")
