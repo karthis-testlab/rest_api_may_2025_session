@@ -12,9 +12,16 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 
 import io.restassured.RestAssured;
 
-public class TestMocking {
+public class ServiceNowMock {
 	
-	WireMockServer mockSever = new WireMockServer();
+	WireMockServer mockSever = new WireMockServer();	
+	
+	String requestPaylod = """
+			{
+             "short_description": "RESTAPIMAY2025",
+             "description": "Create a new record using POST method"
+            }				
+			""";
 	
 	@BeforeClass
 	public void startServer() {
@@ -29,21 +36,17 @@ public class TestMocking {
 	}
 	
 	@BeforeMethod
-	public void createStub() {
-		String jsonBody = """
-				
-				{				
-				 "message": "Hello! Welcome to WrieMock"				
-				}
-				
-				""";
+	public void createStub() {		
 		
-		MappingBuilder requestMock = WireMock.get("/greetings/json");
+		MappingBuilder requestMock = WireMock.post("/api/now/table/incident")
+				.withBasicAuth("admin", "d@9IvhOh5DR*")
+				.withHeader("Content-Type", WireMock.equalTo("application/json"))
+		        .withRequestBody(WireMock.equalToJson(requestPaylod));
 		
 		ResponseDefinitionBuilder responseMock = WireMock.aResponse()
-				.withStatus(200)
-				.withStatusMessage("OK")
-				.withBody(jsonBody)
+				.withStatus(201)
+				.withStatusMessage("Created")
+				.withBodyFile("mock-reponse.json")
 				.withHeader("Content-Type", "application/json");
 		
 		mockSever.stubFor(requestMock.willReturn(responseMock));
@@ -53,13 +56,18 @@ public class TestMocking {
 	public void validateMockServer() {
 		RestAssured.given()
 		           .baseUri("http://localhost:8080")
-		           .basePath("/greetings/json")
+		           .basePath("/api/now/table")		           
+		           .auth()		    
+		           .preemptive()
+		           .basic("admin", "d@9IvhOh5DR*")
+		           .header("Content-Type", "application/json")
 		           .log().all()
 		           .when()
-		           .get()
+		           .body(requestPaylod)
+		           .post("/incident")
 		           .then()
 		           .log().all()
-		           .statusCode(200);
+		           .statusCode(201);
 		           
 	}
 
