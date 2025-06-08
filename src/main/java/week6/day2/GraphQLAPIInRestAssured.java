@@ -32,7 +32,7 @@ public class GraphQLAPIInRestAssured {
 		           .baseUri("https://api.github.com")
 		           .basePath("/graphql")
 		           .contentType(ContentType.JSON)
-		           .header("Authorization", "Bearer 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")
+		           .header("Authorization", "Bearer <GITHUB-TOKEN>")
 		           .log().ifValidationFails()
 		           .when()
 		           .body(convertQueryToJsonString(query))
